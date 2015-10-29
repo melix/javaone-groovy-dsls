@@ -1,0 +1,368 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8" /><meta name="author" content="by Cédric Champeau (@CedricChampeau)" /><title>Groovy DSLs in 2016</title><meta content="yes" name="apple-mobile-web-app-capable" /><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style" /><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui" name="viewport" /><link href="reveal.js/css/reveal.css" rel="stylesheet" /><link rel="stylesheet" href="reveal.js/css/theme/sky.css" id="theme" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" /><style>/* Stylesheet for CodeRay to match GitHub theme | MIT License | http://foundation.zurb.com */
+/*pre.CodeRay {background-color:#f7f7f8;}*/
+.CodeRay .line-numbers{border-right:1px solid #d8d8d8;padding:0 0.5em 0 .25em}
+.CodeRay span.line-numbers{display:inline-block;margin-right:.5em;color:rgba(0,0,0,.3)}
+.CodeRay .line-numbers strong{font-weight: normal}
+table.CodeRay{border-collapse:separate;border-spacing:0;margin-bottom:0;border:0;background:none}
+table.CodeRay td{vertical-align: top}
+table.CodeRay td.line-numbers{text-align:right}
+table.CodeRay td.line-numbers>pre{padding:0;color:rgba(0,0,0,.3)}
+table.CodeRay td.code{padding:0 0 0 .5em}
+table.CodeRay td.code>pre{padding:0}
+.CodeRay .debug{color:#fff !important;background:#000080 !important}
+.CodeRay .annotation{color:#007}
+.CodeRay .attribute-name{color:#000080}
+.CodeRay .attribute-value{color:#700}
+.CodeRay .binary{color:#509}
+.CodeRay .comment{color:#998;font-style:italic}
+.CodeRay .char{color:#04d}
+.CodeRay .char .content{color:#04d}
+.CodeRay .char .delimiter{color:#039}
+.CodeRay .class{color:#458;font-weight:bold}
+.CodeRay .complex{color:#a08}
+.CodeRay .constant,.CodeRay .predefined-constant{color:#008080}
+.CodeRay .color{color:#099}
+.CodeRay .class-variable{color:#369}
+.CodeRay .decorator{color:#b0b}
+.CodeRay .definition{color:#099}
+.CodeRay .delimiter{color:#000}
+.CodeRay .doc{color:#970}
+.CodeRay .doctype{color:#34b}
+.CodeRay .doc-string{color:#d42}
+.CodeRay .escape{color:#666}
+.CodeRay .entity{color:#800}
+.CodeRay .error{color:#808}
+.CodeRay .exception{color:inherit}
+.CodeRay .filename{color:#099}
+.CodeRay .function{color:#900;font-weight:bold}
+.CodeRay .global-variable{color:#008080}
+.CodeRay .hex{color:#058}
+.CodeRay .integer,.CodeRay .float{color:#099}
+.CodeRay .include{color:#555}
+.CodeRay .inline{color:#00}
+.CodeRay .inline .inline{background:#ccc}
+.CodeRay .inline .inline .inline{background:#bbb}
+.CodeRay .inline .inline-delimiter{color:#d14}
+.CodeRay .inline-delimiter{color:#d14}
+.CodeRay .important{color:#555;font-weight:bold}
+.CodeRay .interpreted{color:#b2b}
+.CodeRay .instance-variable{color:#008080}
+.CodeRay .label{color:#970}
+.CodeRay .local-variable{color:#963}
+.CodeRay .octal{color:#40e}
+.CodeRay .predefined{color:#369}
+.CodeRay .preprocessor{color:#579}
+.CodeRay .pseudo-class{color:#555}
+.CodeRay .directive{font-weight:bold}
+.CodeRay .type{font-weight:bold}
+.CodeRay .predefined-type{color:inherit}
+.CodeRay .reserved,.CodeRay .keyword {color:#000;font-weight:bold}
+.CodeRay .key{color:#808}
+.CodeRay .key .delimiter{color:#606}
+.CodeRay .key .char{color:#80f}
+.CodeRay .value{color:#088}
+.CodeRay .regexp .delimiter{color:#808}
+.CodeRay .regexp .content{color:#808}
+.CodeRay .regexp .modifier{color:#808}
+.CodeRay .regexp .char{color:#d14}
+.CodeRay .regexp .function{color:#404;font-weight:bold}
+.CodeRay .string{color:#d20}
+.CodeRay .string .string .string{background:#ffd0d0}
+.CodeRay .string .content{color:#d14}
+.CodeRay .string .char{color:#d14}
+.CodeRay .string .delimiter{color:#d14}
+.CodeRay .shell{color:#d14}
+.CodeRay .shell .delimiter{color:#d14}
+.CodeRay .symbol{color:#990073}
+.CodeRay .symbol .content{color:#a60}
+.CodeRay .symbol .delimiter{color:#630}
+.CodeRay .tag{color:#008080}
+.CodeRay .tag-special{color:#d70}
+.CodeRay .variable{color:#036}
+.CodeRay .insert{background:#afa}
+.CodeRay .delete{background:#faa}
+.CodeRay .change{color:#aaf;background:#007}
+.CodeRay .head{color:#f8f;background:#505}
+.CodeRay .insert .insert{color:#080}
+.CodeRay .delete .delete{color:#800}
+.CodeRay .change .change{color:#66f}
+.CodeRay .head .head{color:#f4f}</style><link href="../../../src/docs/theme/idea.css" rel="stylesheet" /><script type="text/javascript">document.write( '<link rel="stylesheet" href="reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );</script><link rel="stylesheet" href="reveal.js/css/theme/fonts.css" type="text/css"/></head><body><div id="header"></div><div class="reveal"><div class="slides"><section><h1>Groovy DSLs in 2016</h1><p><small>by Cédric Champeau (@CedricChampeau)</small></p></section><section id="who-am-i"><h2>Who am I</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">speaker {
+    name <span class="string"><span class="delimiter">'</span><span class="content">Cédric Champeau</span><span class="delimiter">'</span></span>
+    company <span class="string"><span class="delimiter">'</span><span class="content">Gradle Inc</span><span class="delimiter">'</span></span>
+    oss <span class="string"><span class="delimiter">'</span><span class="content">Apache Groovy committer</span><span class="delimiter">'</span></span>,
+    successes <span class="string"><span class="delimiter">'</span><span class="content">Static type checker</span><span class="delimiter">'</span></span>,
+                    <span class="string"><span class="delimiter">'</span><span class="content">Static compilation</span><span class="delimiter">'</span></span>,
+                    <span class="string"><span class="delimiter">'</span><span class="content">Traits</span><span class="delimiter">'</span></span>,
+                    <span class="string"><span class="delimiter">'</span><span class="content">Markup template engine</span><span class="delimiter">'</span></span>,
+                    <span class="string"><span class="delimiter">'</span><span class="content">DSLs</span><span class="delimiter">'</span></span>
+        failures Stream.of(bugs),
+        twitter <span class="string"><span class="delimiter">'</span><span class="content">@CedricChampeau</span><span class="delimiter">'</span></span>,
+        github <span class="string"><span class="delimiter">'</span><span class="content">melix</span><span class="delimiter">'</span></span>,
+        extraDescription <span class="string"><span class="delimiter">'''</span><span class="content">Groovy in Action 2 co-author
+Misc OSS contribs (Gradle plugins, deck2pdf, jlangdetect, ...)</span><span class="delimiter">'''</span></span>
+}</code></pre></div></div>
+<div class="imageblock" style=""><div class="content"><img src="./images/GradleLogoReg.png" alt="GradleLogoReg" /></div></div></section>
+<section><section id="domain-specific-languages"><h2>Domain Specific Languages</h2><div class="ulist"><ul><li><p>Focused</p></li><li><p>Readable</p></li><li><p>Practical</p></li><li><p>(usually) embeddable</p></li><li><p>Examples: SQL, HTML, XSLT, Ant, &#8230;&#8203;</p></li></ul></div></section><section id="disclaimer"><h2>Disclaimer</h2><div class="paragraph"><p>This is an <em>opiniated</em> talk about how a DSL designed with Apache Groovy should look like.</p></div>
+<div class="imageblock" style=""><div class="content"><img src="./images/terminator.jpg" alt="terminator" /></div></div></section></section>
+<section id="apache-groovy-for-dsls"><h2>Apache Groovy for DSLs</h2><div class="ulist"><ul><li><p>Concise, clean syntax</p></li><li><p>Supports scripting</p></li><li><p>Supports metaprogramming</p></li><li><p>Embeddable</p></li><li><p>Mature tooling: Eclipse, IntelliJ, Netbeans&#8230;&#8203;</p></li></ul></div></section>
+<section><section id="some-old-groovy-dsls"><h2>Some old Groovy DSLs</h2></section><section id="groovy-sql"><h2>Groovy SQL</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">sql.execute <span class="string"><span class="delimiter">&quot;&quot;&quot;</span><span class="content">insert into PROJECT (id, name, url)
+               values (</span><span class="inline"><span class="inline-delimiter">$</span>map</span><span class="content">.id, </span><span class="inline"><span class="inline-delimiter">$</span>map</span><span class="content">.name, </span><span class="inline"><span class="inline-delimiter">$</span>map</span><span class="content">.url)</span><span class="delimiter">&quot;&quot;&quot;</span></span></code></pre></div></div></section><section id="grails-dynamic-finders"><h2>Grails dynamic finders</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy"><span class="keyword">def</span> persons = Person.findByLastName(<span class="string"><span class="delimiter">'</span><span class="content">Stark</span><span class="delimiter">'</span></span>)
+<span class="keyword">assert</span> persons.findAll {
+   <span class="local-variable">it</span>.alive
+}.isEmpty()</code></pre></div></div></section><section id="gradle-task-execution"><h2>Gradle task execution</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">task(hello) &lt;&lt; {
+    println <span class="string"><span class="delimiter">&quot;</span><span class="content">hello</span><span class="delimiter">&quot;</span></span>
+}</code></pre></div></div>
+<div class="paragraph"><p>vs</p></div>
+<div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">task(hello) {
+    println <span class="string"><span class="delimiter">&quot;</span><span class="content">hello</span><span class="delimiter">&quot;</span></span>
+}</code></pre></div></div></section><section id="some-thoughts"><h2>Some thoughts</h2><div class="ulist"><ul><li><p>removing <em>semicolons</em> is not designing a DSL</p></li><li><p>removing <em>parenthesis</em> is not designing a DSL</p></li><li><p><strong>user experience</strong> is important</p></li><li><p><strong>consistency</strong> is important</p></li><li><p>Try to be idiomatic</p></li></ul></div></section></section>
+<section><section id="modern-apache-groovy-dsls"><h2>Modern Apache Groovy DSLs</h2></section><section id="spock"><h2>Spock</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">  <span class="key">setup</span>:
+  <span class="keyword">def</span> map = <span class="keyword">new</span> <span class="predefined-type">HashMap</span>()
+
+  <span class="key">when</span>:
+  map.put(<span class="predefined-constant">null</span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">elem</span><span class="delimiter">&quot;</span></span>)
+
+  <span class="key">then</span>:
+  notThrown(<span class="exception">NullPointerException</span>)</code></pre></div></div></section><section id="grails-3-where-queries"><h2>Grails 3 where queries</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy"><span class="keyword">assert</span> Person.findAll {
+   lastName == <span class="string"><span class="delimiter">'</span><span class="content">Stark</span><span class="delimiter">'</span></span> &amp;&amp; alive
+}.isEmpty()</code></pre></div></div></section><section id="gradle-new-model"><h2>Gradle new model</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">model {
+    components {
+        shared(CustomLibrary) {
+            javaVersions <span class="integer">6</span>, <span class="integer">7</span>
+        }
+        main(JvmLibrarySpec) {
+            targetPlatform <span class="string"><span class="delimiter">'</span><span class="content">java6</span><span class="delimiter">'</span></span>
+            targetPlatform <span class="string"><span class="delimiter">'</span><span class="content">java7</span><span class="delimiter">'</span></span>
+            sources {
+                java {
+                    dependencies {
+                        library <span class="string"><span class="delimiter">'</span><span class="content">shared</span><span class="delimiter">'</span></span>
+                    }
+                }
+            }
+        }
+    }
+}</code></pre></div></div></section><section id="ratpack"><h2>Ratpack</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">ratpack {
+    handlers {
+        get {
+            render <span class="string"><span class="delimiter">&quot;</span><span class="content">Hello World!</span><span class="delimiter">&quot;</span></span>
+        }
+        get(<span class="string"><span class="delimiter">&quot;</span><span class="content">:name</span><span class="delimiter">&quot;</span></span>) {
+            render <span class="string"><span class="delimiter">&quot;</span><span class="content">Hello </span><span class="inline"><span class="inline-delimiter">$</span>pathTokens</span><span class="content">.name!</span><span class="delimiter">&quot;</span></span>
+        }
+    }
+}</code></pre></div></div></section><section id="jenkins-job-dsl"><h2>Jenkins Job DSL</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">job {
+    using <span class="string"><span class="delimiter">'</span><span class="content">TMPL-test</span><span class="delimiter">'</span></span>
+    name <span class="string"><span class="delimiter">'</span><span class="content">PROJ-integ-tests</span><span class="delimiter">'</span></span>
+    scm {
+        git(gitUrl)
+    }
+    triggers {
+        cron(<span class="string"><span class="delimiter">'</span><span class="content">15 1,13 * * *</span><span class="delimiter">'</span></span>)
+    }
+    steps {
+        maven(<span class="string"><span class="delimiter">'</span><span class="content">-e clean integTest</span><span class="delimiter">'</span></span>)
+    }
+}</code></pre></div></div></section><section id="markuptemplateengine"><h2>MarkupTemplateEngine</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">modelTypes = {
+   <span class="predefined-type">List</span>&lt;<span class="predefined-type">String</span>&gt; persons
+}
+
+html {
+    body {
+        ul {
+            persons.each { p -&gt;
+                li p.name
+            }
+        }
+    }
+}</code></pre></div></div></section></section>
+<section><section id="implementing-modern-dsls"><h2>Implementing modern DSLs</h2></section><section id="the-tools"><h2>The tools</h2><div class="ulist"><ul><li><p>Closures with support annotations (<code>@DelegatesTo</code>, &#8230;&#8203;)</p></li><li><p>Compilation customizers</p></li><li><p>AST transformations</p></li><li><p>Type checking extensions</p></li><li><p>Groovy Shell / Groovy Console</p></li></ul></div></section><section id="closures"><h2>Closures</h2><div class="ulist"><ul><li><p>Still at the core of most DSLs</p></li><li><p><code>delegate</code> is very important:</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">[<span class="string"><span class="delimiter">'</span><span class="content">Paris</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">Washington</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">Berlin</span><span class="delimiter">'</span></span>].collect {
+   <span class="local-variable">it</span>.length() == <span class="integer">5</span>
+}</code></pre></div></div>
+<div class="ulist"><ul><li><p>do we really need <code>it</code>?</p></li></ul></div></section><section id="setting-the-delegate"><h2>Setting the delegate</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy"><span class="type">class</span>  <span class="class">HelperExtension</span> {
+    <span class="directive">public</span> <span class="directive">static</span> &lt;T,U&gt; <span class="predefined-type">List</span>&lt;U&gt; myCollect(<span class="predefined-type">List</span>&lt;T&gt; items, Closure&lt;U&gt; action) {
+       <span class="keyword">def</span> clone = action.clone()
+       clone.resolveStrategy = Closure.DELEGATE_FIRST
+       <span class="keyword">def</span> result = <span class="type">[]</span>
+       items.each {
+           clone.delegate = <span class="local-variable">it</span>
+           result &lt;&lt; clone()
+       }
+       result
+    }
+}
+
+HelperExtension.myCollect([<span class="string"><span class="delimiter">'</span><span class="content">Paris</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">Washington</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">Berlin</span><span class="delimiter">'</span></span>]) {
+    length() == <span class="integer">5</span>
+}</code></pre></div></div></section><section id="convert-it-to-an-extension-module"><h2>Convert it to an extension module</h2><div class="ulist"><ul><li><p><code>META-INF</code></p><div class="ulist"><ul><li><p><code>services</code></p><div class="ulist"><ul><li><p><code>org.codehaus.groovy.runtime.ExtensionModule</code></p></li></ul></div></li></ul></div></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="CodeRay"><code>moduleName=My extension module
+moduleVersion=1.0
+extensionClasses=path.to.HelperExtension</code></pre></div></div></section><section id="convert-it-to-an-extension-module-2"><h2>Convert it to an extension module</h2><div class="ulist"><ul><li><p>Consume it as if it was a regular Groovy method</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">[<span class="string"><span class="delimiter">'</span><span class="content">Paris</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">Washington</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">Berlin</span><span class="delimiter">'</span></span>].myCollect {
+    length() == <span class="integer">5</span>
+}</code></pre></div></div></section><section id="declare-the-delegate-type"><h2>Declare the delegate type</h2><div class="ulist"><ul><li><p>Best IDE support</p></li><li><p><strong>Only</strong> way to have static type checking</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy"><span class="directive">public</span> <span class="directive">static</span> &lt;T,U&gt; <span class="predefined-type">List</span>&lt;U&gt; myCollect(
+    <span class="predefined-type">List</span>&lt;T&gt; items,
+    <span class="annotation">@DelegatesTo</span>(FirstParam.FirstGenericType)
+    Closure&lt;U&gt; action) {
+...
+}</code></pre></div></div></section></section>
+<section><section id="removing-ceremony"><h2>Removing ceremony</h2><div class="ulist"><ul><li><p>Is your DSL self-contained?</p></li><li><p>If so</p><div class="ulist"><ul><li><p>Try to remove explicit imports</p></li><li><p>Avoid usage of the <code>new</code> keyword</p></li><li><p>Avoid usage of annotations</p></li><li><p>Embrace SAM types</p></li></ul></div></li></ul></div></section><section id="sam-what"><h2>SAM what?</h2><div class="paragraph"><p>This is ugly:</p></div>
+<div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">handle(<span class="keyword">new</span> <span class="predefined-type">Handler</span>() {
+    <span class="annotation">@Override</span>
+    <span class="type">void</span> handle(<span class="predefined-type">String</span> message) {
+       println message
+    }
+})</code></pre></div></div></section><section id="sam-what-2"><h2>SAM what?</h2><div class="paragraph"><p>This is cool:</p></div>
+<div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">handle {
+   println message
+}</code></pre></div></div>
+<div class="paragraph"><p>SAM type coercion works for both interfaces and abstract classes.</p></div></section><section id="compilation-customizers"><h2>Compilation customizers</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy"><span class="type">class</span> <span class="class">WebServer</span> {
+   <span class="directive">static</span> <span class="type">void</span> serve(<span class="annotation">@DelegatesTo</span>(ServerSpec) Closure cl) {
+       <span class="comment">// ...</span>
+   }
+}</code></pre></div></div></section><section id="compilation-customizers-2"><h2>Compilation customizers</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy"><span class="keyword">def</span> importCustomizer = <span class="keyword">new</span> ImportCustomizer()
+importCustomizer.addStaticStars <span class="string"><span class="delimiter">'</span><span class="content">com.acme.WebServer</span><span class="delimiter">'</span></span>
+
+<span class="keyword">def</span> configuration = <span class="keyword">new</span> CompilerConfiguration()
+configuration.addCompilationCustomizers(importCustomizer)
+
+<span class="keyword">def</span> shell = <span class="keyword">new</span> GroovyShell(configuration)
+shell.evaluate <span class="string"><span class="delimiter">'''</span><span class="content">
+serve {
+   port 80
+   get('/foo') { ... }
+}
+</span><span class="delimiter">'''</span></span></code></pre></div></div></section><section id="compilation-customizers-3"><h2>Compilation customizers</h2><div class="ulist"><ul><li><p><code>ImportCustomizer</code>: automatically add imports to your scripts</p></li><li><p><code>ASTTransformationCustomizer</code>: automatically apply AST transformations to your scripts</p></li><li><p><code>SecureASTCustomizer</code>: restrict the grammar of the language</p></li><li><p><code>SourceAwareCustomizer</code>: apply customizers based on the source file</p></li><li><p>See <a href="http://docs.groovy-lang.org/next/html/documentation/core-domain-specific-languages.html#compilation-customizers">docs for customizers</a></p></li></ul></div></section><section id="avoiding-imperative-style"><h2>Avoiding imperative style</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy"><span class="type">class</span> <span class="class">WebServer</span> {
+   <span class="directive">static</span> <span class="type">void</span> serve(<span class="annotation">@DelegatesTo</span>(ServerSpec) Closure cl) {
+       <span class="keyword">def</span> spec = <span class="keyword">new</span> ServerSpec()
+       cl.delegate = spec
+       cl.resolveStrategy = <span class="string"><span class="delimiter">'</span><span class="content">DELEGATE_FIRST</span><span class="delimiter">'</span></span>
+       cl()
+       <span class="keyword">def</span> runner = <span class="keyword">new</span> Runner()
+       runner.execute(spec)
+   }
+}</code></pre></div></div></section><section id="avoiding-imperative-style-2"><h2>Avoiding imperative style</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy"><span class="type">class</span> <span class="class">ServerSpec</span> {
+   <span class="type">int</span> port
+   <span class="type">void</span> port(<span class="type">int</span> port) { <span class="local-variable">this</span>.port = port }
+   <span class="type">void</span> get(<span class="predefined-type">String</span> path, <span class="annotation">@DelegatesTo</span>(HandlerSpec) Closure spec) { ... }
+}</code></pre></div></div></section><section id="avoiding-imperative-style-3"><h2>Avoiding imperative style</h2><div class="ulist"><ul><li><p>Use the <code>ServerSpec</code> style above</p></li><li><p>The closure should <em>configure</em> the model</p></li><li><p>Execution <em>can</em> be deferred</p></li></ul></div></section></section>
+<section><section id="type-checking-extensions"><h2>Type checking extensions</h2></section><section id="goals"><h2>Goals</h2><div class="ulist"><ul><li><p>Provide <strong>early</strong> feedback to the user</p></li><li><p>Type safety</p></li><li><p>Help the compiler understand your DSL</p></li></ul></div></section><section id="type-checking-extensions-api"><h2>Type checking extensions API</h2><div class="ulist"><ul><li><p>Event-based API</p></li><li><p>React to events such as <em>undefined variable</em> or <em>method not found</em></p></li><li><p>Developer instructs the type checker what to do</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">methodNotFound { receiver, name, argList, argTypes, call -&gt;
+    <span class="keyword">if</span> (receiver==classNodeFor(<span class="predefined-type">String</span>)
+            &amp;&amp; name==<span class="string"><span class="delimiter">'</span><span class="content">longueur</span><span class="delimiter">'</span></span>
+            &amp;&amp; argList.size()==<span class="integer">0</span>) {
+        handled = <span class="predefined-constant">true</span>
+        <span class="keyword">return</span> newMethod(<span class="string"><span class="delimiter">'</span><span class="content">longueur</span><span class="delimiter">'</span></span>, classNodeFor(<span class="predefined-type">String</span>))
+    }
+}</code></pre></div></div></section><section id="markuptemplateengine-example"><h2>MarkupTemplateEngine example</h2><div class="ulist"><ul><li><p>Given the following template</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">pages.each { page -&gt;
+    p(<span class="string"><span class="delimiter">&quot;</span><span class="content">Page title: </span><span class="inline"><span class="inline-delimiter">$</span>page</span><span class="content">.title</span><span class="delimiter">&quot;</span></span>)
+    p(page.text)
+}</code></pre></div></div>
+<div class="ulist"><ul><li><p>How do you make sure that <code>pages</code> is a valid model type?</p></li><li><p>How do you notify the user that <code>page</code> doesn&#8217;t have a <code>text</code> property?</p></li><li><p>How to make it <strong>fast</strong>?</p></li></ul></div></section><section id="solution"><h2>Solution</h2><div class="ulist"><ul><li><p>Declare the model types</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">modelTypes = {
+    <span class="predefined-type">List</span>&lt;Page&gt; pages
+}
+
+pages.each { page -&gt;
+    p(<span class="string"><span class="delimiter">&quot;</span><span class="content">Page title: </span><span class="inline"><span class="inline-delimiter">$</span>page</span><span class="content">.title</span><span class="delimiter">&quot;</span></span>)
+    p(page.text)
+}</code></pre></div></div>
+<div class="ulist"><ul><li><p>Implement a <em>type checking extension</em></p></li></ul></div></section><section id="markuptemplateengine-extension"><h2>MarkupTemplateEngine extension</h2><div class="ulist"><ul><li><p>Recognizes unresolved method calls</p><div class="ulist"><ul><li><p>converts them into direct <em>methodMissing</em> calls</p></li></ul></div></li><li><p>Recognizes unresolved variables</p><div class="ulist"><ul><li><p>checks if they are defined in the binding</p></li><li><p>if yes, instructs the type checker what the type is</p></li></ul></div></li></ul></div></section><section id="markuptemplateengine-extension-2"><h2>MarkupTemplateEngine extension</h2><div class="ulist"><ul><li><p>Applies <code>@CompileStatic</code> transparently</p></li><li><p>Performs post-type checking transformations</p><div class="ulist"><ul><li><p>Don&#8217;t do this at home!</p></li></ul></div></li></ul></div></section><section id="optional-closureparams"><h2>(Optional) @ClosureParams</h2><div class="ulist"><ul><li><p>For type checking/static compilation</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="CodeRay"><code class="groovy language-groovy">[<span class="string"><span class="delimiter">'</span><span class="content">a</span><span class="delimiter">'</span></span>,<span class="string"><span class="delimiter">'</span><span class="content">b</span><span class="delimiter">'</span></span>,<span class="string"><span class="delimiter">'</span><span class="content">c</span><span class="delimiter">'</span></span>].eachWithIndex { str, idx -&gt;
+  ...
+}</code></pre></div></div></section><section id="optional-closureparams-2"><h2>(Optional) @ClosureParams</h2><div class="listingblock"><div class="content"><pre class="CodeRay"><code class="java language-java"><span class="directive">public</span> <span class="directive">static</span> &lt;T&gt; <span class="predefined-type">Collection</span>&lt;T&gt; eachWithIndex(
+   <span class="predefined-type">Collection</span>&lt;T&gt; self,
+   <span class="annotation">@ClosureParams</span>(value=FromString.class, options=<span class="string"><span class="delimiter">&quot;</span><span class="content">T,Integer</span><span class="delimiter">&quot;</span></span>)
+   Closure closure) {
+   ...
+}</code></pre></div></div>
+<div class="paragraph"><p>Check out the <a href="http://docs.groovy-lang.org/latest/html/documentation/#_the_code_closureparams_code_annotation">documentation</a> for more details.</p></div></section></section>
+<section id="what-we-learnt"><h2>What we learnt</h2><div class="ulist"><ul><li><p>Leverage the lean syntax of Groovy</p></li><li><p>Scoping improves readability</p></li><li><p>Use the <em>delegate</em></p></li><li><p>Use <code>@DelegatesTo</code> and <code>@ClosureParams</code> for IDE/type checker support</p></li><li><p>Use imperative style as last resort</p></li><li><p>Help yourself (builders, immutable datastructures, &#8230;&#8203;)</p></li></ul></div></section>
+<section id="questions"><h2>Questions</h2><div class="imageblock" style=""><div class="content"><img src="./images/qa.png" alt="qa" /></div></div></section>
+<section id="we-re-hiring"><h2>We&#8217;re hiring!</h2><div class="paragraph"><p><a href="http://gradle.org/gradle-jobs/" class="bare">http://gradle.org/gradle-jobs/</a></p></div>
+<div class="imageblock" style=""><div class="content"><img src="./images/GradleLogoLarge.png" alt="GradleLogoLarge" /></div></div></section>
+<section id="thank-you"><h2>Thank you!</h2><div class="ulist"><ul><li><p>Slides and code : <a href="https://github.com/melix/javaone-groovy-dsls" class="bare">https://github.com/melix/javaone-groovy-dsls</a></p></li><li><p>Groovy documentation : <a href="http://groovy-lang.org/documentation.html" class="bare">http://groovy-lang.org/documentation.html</a></p></li><li><p>Follow me: <a href="http://twitter.com/CedricChampeau">@CedricChampeau</a></p></li></ul></div></section></div></div><script src="reveal.js/lib/js/head.min.js"></script><script src="reveal.js/js/reveal.js"></script><script type="text/javascript">// See https://github.com/hakimel/reveal.js#configuration for a full list of configuration options
+Reveal.initialize({
+  // Display controls in the bottom right corner
+  controls: true,
+  // Display a presentation progress bar
+  progress: true,
+  // Display the page number of the current slide
+  slideNumber: true,
+  // Push each slide change to the browser history
+  history: true,
+  // Enable keyboard shortcuts for navigation
+  keyboard: true,
+  // Enable the slide overview mode
+  overview: true,
+  // Vertical centering of slides
+  center: true,
+  // Enables touch navigation on devices with touch input
+  touch: true,
+  // Loop the presentation
+  loop: false,
+  // Change the presentation direction to be RTL
+  rtl: false,
+  // Turns fragments on and off globally
+  fragments: true,
+  // Flags if the presentation is running in an embedded mode,
+  // i.e. contained within a limited portion of the screen
+  embedded: false,
+  // Number of milliseconds between automatically proceeding to the
+  // next slide, disabled when set to 0, this value can be overwritten
+  // by using a data-autoslide attribute on your slides
+  autoSlide: 0,
+  // Stop auto-sliding after user input
+  autoSlideStoppable: true,
+  // Enable slide navigation via mouse wheel
+  mouseWheel: false,
+  // Hides the address bar on mobile devices
+  hideAddressBar: true,
+  // Opens links in an iframe preview overlay
+  previewLinks: false,
+  // Theme (e.g., beige, black, league, night, serif, simple, sky, solarized, white)
+  // NOTE setting the theme in the config no longer works in reveal.js 3.x
+  //theme: Reveal.getQueryHash().theme || 'sky',
+  // Transition style (e.g., none, fade, slide, convex, concave, zoom)
+  transition: Reveal.getQueryHash().transition || 'linear',
+  // Transition speed (e.g., default, fast, slow)
+  transitionSpeed: 'default',
+  // Transition style for full page slide backgrounds (e.g., none, fade, slide, convex, concave, zoom)
+  backgroundTransition: 'fade',
+  // Number of slides away from the current that are visible
+  viewDistance: 3,
+  // Parallax background image (e.g., "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'")
+  parallaxBackgroundImage: '',
+  // Parallax background size in CSS syntax (e.g., "2100px 900px")
+  parallaxBackgroundSize: '',
+
+  // The "normal" size of the presentation, aspect ratio will be preserved
+  // when the presentation is scaled to fit different resolutions. Can be
+  // specified using percentage units.
+  width: 960,
+  height: 700,
+
+  // Factor of the display size that should remain empty around the content
+  margin: 0.1,
+
+  // Bounds for smallest/largest possible scale to apply to content
+  minScale: 0.2,
+  maxScale: 1.5,
+
+  // Optional libraries used to extend on reveal.js
+  dependencies: [
+      { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      
+      { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+  ]
+});</script><div id="footer">
+  <img src="images/springone2gx.png" height="40" style="float: left; margin: 0px 15px 15px 0px;">
+  <p>Unless otherwise indicated, these slides are © 2015 Gradle, Inc. and licensed under a
+  Creative Commons Attribution-NonCommercial license http://creativecommons.org/licenses/by-nc/3.0/</p>
+</div></body></html>
