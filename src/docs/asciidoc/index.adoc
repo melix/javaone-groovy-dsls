@@ -1,0 +1,505 @@
+= Groovy DSLs in 2016
+by Cédric Champeau (@CedricChampeau)
+2015-09-15
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../java]
+:deckjs_transition: fade
+:navigation:
+:menu:
+:goto:
+:status:
+:adoctor: http://asciidoctor.org/[Asciidoctor]
+:gradle: http://gradle.org[Gradle]
+:deckjs: http://imakewebthings.com/deck.js/[deck.js]
+:deck2pdf: https://github.com/melix/deck2pdf[deck2pdf]
+
+== Who am I
+
+[source,groovy]
+----
+speaker {
+    name 'Cédric Champeau'
+    company 'Gradle Inc'
+    oss 'Apache Groovy committer',
+    successes 'Static type checker',
+                    'Static compilation',
+                    'Traits',
+                    'Markup template engine',
+                    'DSLs'
+        failures Stream.of(bugs),
+        twitter '@CedricChampeau',
+        github 'melix',
+        extraDescription '''Groovy in Action 2 co-author
+Misc OSS contribs (Gradle plugins, deck2pdf, jlangdetect, ...)'''
+}
+----
+
+image::GradleLogoReg.png[]
+
+== Domain Specific Languages
+
+* Focused
+* Readable
+* Practical
+* (usually) embeddable
+* Examples: SQL, HTML, XSLT, Ant, ...
+
+=== Disclaimer
+
+This is an _opiniated_ talk about how a DSL designed with Apache Groovy should look like.
+
+image::terminator.jpg[]
+
+
+== Apache Groovy for DSLs
+
+* Concise, clean syntax
+* Supports scripting
+* Supports metaprogramming
+* Embeddable
+* Mature tooling: Eclipse, IntelliJ, Netbeans...
+
+== Some old Groovy DSLs
+
+=== Groovy SQL
+
+```groovy
+sql.execute """insert into PROJECT (id, name, url) 
+               values ($map.id, $map.name, $map.url)"""
+```
+
+=== Grails dynamic finders
+
+```groovy
+def persons = Person.findByLastName('Stark')
+assert persons.findAll { 
+   it.alive 
+}.isEmpty()
+```
+
+=== Gradle task execution
+
+```groovy
+task(hello) << {
+    println "hello"
+}
+```
+vs
+
+```groovy
+task(hello) {
+    println "hello"
+}
+
+```
+
+=== Some thoughts
+
+* removing _semicolons_ is not designing a DSL
+* removing _parenthesis_ is not designing a DSL
+* *user experience* is important
+* *consistency* is important
+* Try to be idiomatic
+
+== Modern Apache Groovy DSLs
+
+=== Spock
+
+```groovy
+  setup:
+  def map = new HashMap()
+
+  when:
+  map.put(null, "elem")
+
+  then:
+  notThrown(NullPointerException)
+```
+
+=== Grails 3 where queries
+
+```groovy
+assert Person.findAll {
+   lastName == 'Stark' && alive
+}.isEmpty()
+```
+
+=== Gradle new model
+
+```groovy
+model {
+    components {
+        shared(CustomLibrary) {
+            javaVersions 6, 7
+        }
+        main(JvmLibrarySpec) {
+            targetPlatform 'java6'
+            targetPlatform 'java7'
+            sources {
+                java {
+                    dependencies {
+                        library 'shared'
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+=== Ratpack
+
+```groovy
+ratpack {
+    handlers {
+        get {
+            render "Hello World!"
+        }
+        get(":name") {
+            render "Hello $pathTokens.name!"
+        }
+    }
+}
+```
+
+=== Jenkins Job DSL
+
+```groovy
+job {
+    using 'TMPL-test'
+    name 'PROJ-integ-tests'
+    scm {
+        git(gitUrl)
+    }
+    triggers {
+        cron('15 1,13 * * *')
+    }
+    steps {
+        maven('-e clean integTest')
+    }
+}
+```
+
+=== MarkupTemplateEngine
+
+```groovy
+modelTypes = {
+   List<String> persons
+}
+
+html {
+    body {
+        ul {
+            persons.each { p ->
+                li p.name
+            }
+        }
+    }
+}
+```
+
+== Implementing modern DSLs
+
+=== The tools
+
+* Closures with support annotations (`@DelegatesTo`, ...)
+* Compilation customizers
+* AST transformations
+* Type checking extensions
+* Groovy Shell / Groovy Console
+
+=== Closures
+
+* Still at the core of most DSLs
+* `delegate` is very important:
+
+```groovy
+['Paris', 'Washington', 'Berlin'].collect { 
+   it.length() == 5 
+}
+```
+
+* do we really need `it`?
+
+=== Setting the delegate
+
+```groovy
+class  HelperExtension {
+    public static <T,U> List<U> myCollect(List<T> items, Closure<U> action) {
+       def clone = action.clone()
+       clone.resolveStrategy = Closure.DELEGATE_FIRST
+       def result = []
+       items.each {
+           clone.delegate = it
+           result << clone()
+       }
+       result
+    }
+}
+
+HelperExtension.myCollect(['Paris', 'Washington', 'Berlin']) { 
+    length() == 5 
+}
+```
+
+=== Convert it to an extension module
+
+* `META-INF`
+** `services`
+*** `org.codehaus.groovy.runtime.ExtensionModule`
+
+```
+moduleName=My extension module
+moduleVersion=1.0
+extensionClasses=path.to.HelperExtension
+```
+
+=== Convert it to an extension module
+
+* Consume it as if it was a regular Groovy method
+
+```groovy
+
+['Paris', 'Washington', 'Berlin'].myCollect {
+    length() == 5
+}
+```
+
+=== Declare the delegate type
+
+* Best IDE support
+* *Only* way to have static type checking
+
+```groovy
+public static <T,U> List<U> myCollect(
+    List<T> items, 
+    @DelegatesTo(FirstParam.FirstGenericType) 
+    Closure<U> action) {
+...
+}
+```
+
+== Removing ceremony
+
+* Is your DSL self-contained?
+* If so
+** Try to remove explicit imports
+** Avoid usage of the `new` keyword
+** Avoid usage of annotations
+** Embrace SAM types
+
+=== SAM what?
+
+This is ugly:
+
+```groovy
+
+handle(new Handler() {
+    @Override
+    void handle(String message) {
+       println message
+    }
+})
+```
+
+=== SAM what?
+
+This is cool:
+
+```groovy
+handle {
+   println message
+}
+```
+
+SAM type coercion works for both interfaces and abstract classes.
+
+=== Compilation customizers
+
+```groovy
+class WebServer {
+   static void serve(@DelegatesTo(ServerSpec) Closure cl) {
+       // ...
+   }
+}
+```
+=== Compilation customizers
+
+```groovy
+def importCustomizer = new ImportCustomizer()
+importCustomizer.addStaticStars 'com.acme.WebServer'
+
+def configuration = new CompilerConfiguration()
+configuration.addCompilationCustomizers(importCustomizer)
+
+def shell = new GroovyShell(configuration)
+shell.evaluate '''
+serve {
+   port 80
+   get('/foo') { ... }
+}
+'''
+```
+
+=== Compilation customizers
+
+* `ImportCustomizer`: automatically add imports to your scripts
+* `ASTTransformationCustomizer`: automatically apply AST transformations to your scripts
+* `SecureASTCustomizer`: restrict the grammar of the language
+* `SourceAwareCustomizer`: apply customizers based on the source file
+* See http://docs.groovy-lang.org/next/html/documentation/core-domain-specific-languages.html#compilation-customizers[docs for customizers]
+
+=== Avoiding imperative style
+
+
+```groovy
+class WebServer {
+   static void serve(@DelegatesTo(ServerSpec) Closure cl) {
+       def spec = new ServerSpec()
+       cl.delegate = spec
+       cl.resolveStrategy = 'DELEGATE_FIRST'
+       cl()
+       def runner = new Runner()
+       runner.execute(spec)
+   }
+}
+```
+
+=== Avoiding imperative style
+
+```groovy
+class ServerSpec {
+   int port
+   void port(int port) { this.port = port }
+   void get(String path, @DelegatesTo(HandlerSpec) Closure spec) { ... }
+}
+```
+
+=== Avoiding imperative style
+
+* Use the `ServerSpec` style above
+* The closure should _configure_ the model
+* Execution _can_ be deferred
+
+== Type checking extensions
+
+=== Goals
+
+* Provide *early* feedback to the user
+* Type safety
+* Help the compiler understand your DSL
+
+=== Type checking extensions API
+
+* Event-based API
+* React to events such as _undefined variable_ or _method not found_
+* Developer instructs the type checker what to do
+
+```groovy
+methodNotFound { receiver, name, argList, argTypes, call ->
+    if (receiver==classNodeFor(String)
+            && name=='longueur'
+            && argList.size()==0) {
+        handled = true
+        return newMethod('longueur', classNodeFor(String))
+    }
+}
+```
+
+=== MarkupTemplateEngine example
+
+* Given the following template
+
+```groovy
+pages.each { page ->
+    p("Page title: $page.title")
+    p(page.text)
+}
+```
+
+* How do you make sure that `pages` is a valid model type?
+* How do you notify the user that `page` doesn't have a `text` property?
+* How to make it *fast*?
+
+=== Solution
+
+* Declare the model types
+
+```groovy
+modelTypes = {
+    List<Page> pages
+}
+
+pages.each { page ->
+    p("Page title: $page.title")
+    p(page.text)
+}
+```
+
+* Implement a _type checking extension_
+
+=== MarkupTemplateEngine extension
+
+* Recognizes unresolved method calls
+** converts them into direct _methodMissing_ calls
+* Recognizes unresolved variables
+** checks if they are defined in the binding
+** if yes, instructs the type checker what the type is
+
+=== MarkupTemplateEngine extension
+
+* Applies `@CompileStatic` transparently
+* Performs post-type checking transformations
+** Don't do this at home!
+
+=== (Optional) @ClosureParams
+
+* For type checking/static compilation
+
+```groovy
+['a','b','c'].eachWithIndex { str, idx ->
+  ...
+}
+
+```
+
+=== (Optional) @ClosureParams
+
+```java
+public static <T> Collection<T> eachWithIndex(
+   Collection<T> self, 
+   @ClosureParams(value=FromString.class, options="T,Integer") 
+   Closure closure) {
+   ...
+}
+```
+
+Check out the http://docs.groovy-lang.org/latest/html/documentation/#_the_code_closureparams_code_annotation[documentation] for more details.
+
+== What we learnt
+
+* Leverage the lean syntax of Groovy
+* Scoping improves readability
+* Use the _delegate_
+* Use `@DelegatesTo` and `@ClosureParams` for IDE/type checker support
+* Use imperative style as last resort
+* Help yourself (builders, immutable datastructures, ...)
+
+== Questions
+
+image::qa.png[]
+
+== We're hiring!
+
+http://gradle.org/gradle-jobs/
+
+image::GradleLogoLarge.png[]
+
+== Thank you!
+
+* Slides and code : https://github.com/melix/javaone-groovy-dsls
+* Groovy documentation : http://groovy-lang.org/documentation.html
+* Follow me: http://twitter.com/CedricChampeau[@CedricChampeau]
+
